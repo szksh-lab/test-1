@@ -1,0 +1,11 @@
+---
+name: test (pinact)
+on: pull_request
+permissions: {}
+jobs:
+  pinact:
+    runs-on: ubuntu-24.04
+    if: false
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v4.0.0
