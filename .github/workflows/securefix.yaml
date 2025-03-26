@@ -39,6 +39,21 @@ jobs:
               fi
               echo "::notice:: update branch: $pr"
               gh pr -R "$GITHUB_REPOSITORY" update-branch "$pr"
+            elif [ "$op" = "add_label" ]; then
+              pr=$(echo "$line" | jq -r '.pr')
+              echo "pr: $pr" >&2
+              if [ -z "$pr" ]; then
+                echo "::error:: pr is required"
+                continue
+              fi
+              label=$(echo "$line" | jq -r '.label')
+              echo "label: $label" >&2
+              if [ -z "$label" ]; then
+                echo "::error:: label is required"
+                continue
+              fi
+              echo "::notice:: add a label: pr=$pr label=$label"
+              gh pr -R "$GITHUB_REPOSITORY" edit --add-label "$label" "$pr"
             elif [ -z "$op"]; then
               echo "::error:: op is required"
               continue
