@@ -1,11 +1,20 @@
 ---
-name: test (pinact)
+name: test
 on: pull_request
 permissions: {}
 jobs:
-  pinact:
+  test:
+    if: github.triggering_actor == 'suzuki-shunsuke'
     runs-on: ubuntu-24.04
-    if: false
+    permissions: {}
+    timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v4.0.0
+      - run: echo "$PAYLOAD" > file.txt
+        env:
+          PAYLOAD: |
+            {"op": "update_branch", "pr": 23}
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: securefix
+          path: |
+            file.txt

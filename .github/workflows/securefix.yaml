@@ -1,0 +1,41 @@
+---
+name: securefix
+on:
+  workflow_run:
+    workflows: ["test"]
+    types:
+      - completed
+permissions: {}
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    permissions: {}
+    timeout-minutes: 10
+    steps:
+      - uses: actions/download-artifact@95815c38cf2ff2164869cbab79da8d1f422bc89e # v4.2.1
+        with:
+          github-token: ${{ github.token }}
+          name: securefix
+          run-id: ${{ github.event.workflow_run.id }}
+      - run: cat file.txt
+      - run: |
+          while read -r line; do
+            echo "line: $line" >&2
+            op=$(echo "$line" | jq -r '.op')
+            echo "op: $op" >&2
+            if [ "$op" = "update_branch" ]; then
+              pr=$(echo "$line" | jq -r '.pr')
+              echo "pr: $pr" >&2
+              if [ -z "$pr" ]; then
+                echo "::error:: pr is required"
+                continue
+              fi
+              echo "::notice:: update branch: $pr"
+              gh pr -R "$GITHUB_REPOSITORY" update-branch "$pr"
+            else
+              echo "::error:: unsupported op: $op"
+              continue
+            fi
+          done < file.txt
+
+
