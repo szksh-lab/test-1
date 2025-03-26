@@ -25,6 +25,9 @@ jobs:
         run: |
           while read -r line; do
             echo "line: $line" >&2
+            if [ -z "$line" ]; then
+              continue
+            fi
             op=$(echo "$line" | jq -r '.op')
             echo "op: $op" >&2
             if [ "$op" = "update_branch" ]; then
@@ -36,6 +39,9 @@ jobs:
               fi
               echo "::notice:: update branch: $pr"
               gh pr -R "$GITHUB_REPOSITORY" update-branch "$pr"
+            elif [ -z "$op"]; then
+              echo "::error:: op is required"
+              continue
             else
               echo "::error:: unsupported op: $op"
               continue
